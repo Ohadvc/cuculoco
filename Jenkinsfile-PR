@@ -1,0 +1,26 @@
+pipeline {
+    options {
+        timeout(time: 25, unit: 'MINUTES')
+        timestamps()
+        disableConcurrentBuilds()
+        ansiColor('xterm')
+        buildDiscarder(logRotator(numToKeepStr: '24'))
+    }
+    agent {
+        dockerfile {
+            label 'master'
+        }
+    }
+    stages {
+        stage('Validate Gherkin syntax') {
+            steps {
+                sh "npm install && npm run gherkin-validation"
+            }
+        }
+        stage('Static code analysis (ESLint)') {
+            steps {
+                sh "npx eslint ."
+            }
+        }
+    }
+}
